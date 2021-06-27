@@ -1,7 +1,9 @@
-"""
-Metroid
-PabloV version
-"""
+#----------------------------------
+# MetroidPy
+# Author: Pablo Villanueva Domingo
+# Started: 13/02/2017
+# Last update: 27/06/2021
+#----------------------------------
 
 # Import libraries
 import pygame
@@ -9,17 +11,20 @@ from pygame.locals import *
 import math
 import random
 import time
+import warnings
 from source.player import player
 from source.enemies import metroid, mother_brain
 from source.missil import missil
-import warnings
+from source.background import background
+from source.winning import win_anim
+
 
 #ignore warning message (not working)
 warnings.filterwarnings("ignore", message="known incorrect sRGB profile")
 
 # Initialize the game
 pygame.init()
-width, height = 2*254, 300 #2*back1.get_width(), 200
+width, height = 2*254, 300
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Metroid")
 
@@ -38,27 +43,6 @@ explosion = pygame.image.load("sprites/misc/explosion.png")
 minimetroid = pygame.image.load("sprites/enemies/metroidred.png")
 minimetroid = pygame.transform.scale(minimetroid,(minimetroid.get_width()//2,minimetroid.get_height()//2))
 
-# Backgrounds
-back1 = pygame.image.load("sprites/backgrounds/back1.png")
-back2 = pygame.image.load("sprites/backgrounds/back2.png")
-back3 = pygame.image.load("sprites/backgrounds/back3.png")
-back4 = pygame.image.load("sprites/backgrounds/back4.png")
-back5 = pygame.image.load("sprites/backgrounds/ceres_lab.bmp")
-back5 = pygame.transform.scale(back5,(back4.get_width(),back4.get_height()))
-backchozo = pygame.image.load("sprites/backgrounds/backchozo2.png")
-
-# Floors
-im_floor1 = pygame.image.load("sprites/floors/floor1.png")
-im_floor2 = pygame.image.load("sprites/floors/floor2.png")
-im_floor3 = pygame.image.load("sprites/floors/floor3.png")
-im_floor4 = pygame.image.load("sprites/floors/floor4.png")
-im_spaceship = pygame.image.load("sprites/misc/spaceship.png")
-
-# Win animation
-win1 = pygame.image.load("sprites/samus/win1.png")
-win2 = pygame.image.load("sprites/samus/win2.png")
-win3 = pygame.image.load("sprites/samus/win3.png")
-winims = [win1, win2, win3]
 
 # Load audio
 pygame.mixer.init()
@@ -68,7 +52,6 @@ sound_enemy = pygame.mixer.Sound("music/enemy.wav")
 sound_enemy.set_volume(0.2)
 sound_explode = pygame.mixer.Sound("music/explode.wav")
 sound_explode.set_volume(0.2)
-
 
 clock = pygame.time.Clock()
 
@@ -82,60 +65,7 @@ victorytext2 = fuente2.render("SEE YOU NEXT MISSION", True, (240,200,80))
 #restart = fuente2.render("Press enter to restart", True, (240,200,80))
 
 
-#-----------
-# FUNCTIONS
-#----------
 
-
-backs = [back1, back2, back3, back4, back5]
-floors = [im_floor1, im_floor1, im_floor3, im_floor4, im_floor2]
-numscenes = len(backs)
-
-# Function for drawing the scenario
-def background(scene):
-
-    screen.fill(0)
-
-    flip = False
-    if scene == 5:
-        flip = True
-
-    # Background
-    for x in range(width//backs[scene-1].get_width()+1):
-        screen.blit(pygame.transform.flip(backs[scene-1],False,flip),(x*backs[scene-1].get_width(),height//2))
-        screen.blit(backs[scene-1],(x*backs[scene-1].get_width(),0))
-
-    # Floors
-    for x in range(width//floors[scene-1].get_width()+2):
-        screen.blit(floors[scene-1],(x*floors[scene-1].get_width(),height-40))
-
-    # Other objects in scene
-    if scene==1:
-        screen.blit(im_spaceship,(width/2 - im_spaceship.get_width()/2, height//2-20))
-
-
-class win_anim():
-    def __init__(self):
-
-        win1 = pygame.image.load("sprites/samus/win1.png")
-        win2 = pygame.image.load("sprites/samus/win2.png")
-        win3 = pygame.image.load("sprites/samus/win3.png")
-        self.winims = [win1, win2, win3]
-
-        self.time_change = 1
-        self.ind_im = 0
-
-    def win_animation(self, time):
-
-        if time % self.time_change == 0:
-            self.ind_im += 1
-            #self.time_change += 1
-
-            if self.ind_im > len(self.winims)-1:
-                self.ind_im = 0
-
-        im = self.winims[self.ind_im]
-        screen.blit(im,(width/2-im.get_width()/2,height/2-im.get_height()/2))
 
 # Some flags
 menu = True
@@ -175,10 +105,12 @@ while menu==True:
 
 
 
+#-----------------
+# Initialize classes
+#-----------------
 
-#-----------------
-# Game
-#-----------------
+# Background
+back = background()
 
 # Initialize player
 player = player(width//2-13, height-85) # 13 is half the size of the Samus sprite
@@ -199,8 +131,8 @@ list_metroids = [ metroid(width-50,height//2+80,True,2),
                 ]
 
 # Final boss
-motherbrain = mother_brain(3*width//4, height//2+20, 5)
-list_enemies = list_metroids
+motherbrain = mother_brain(3*width//4, height//2+20, 1)
+list_enemies = []#list_metroids
 list_enemies.append(motherbrain)
 
 # Initialize shots
@@ -209,26 +141,31 @@ list_shots = []
 # Start in first scene
 scene = 1
 
-#"""
+
+#-----------------
 # Opening scene
+#-----------------
+
 pygame.mixer.music.load("music/intro_fanfare.mp3")
 pygame.mixer.music.play(0, 0.0)
-background(1)
+back.draw_background(screen, scene)
 screen.blit(player.image, (player.x, player.y))
 pygame.display.update()
 time.sleep(5.)
-#"""
+
 
 pygame.mixer.music.load("music/brinstar.mp3")
 pygame.mixer.music.play(-1, 0.)
 
-
+#-----------------
 # Main loop
+#-----------------
+
 while 1:
     while (gameover==False) and (victory==False):
 
         # Draw background
-        background(scene)
+        back.draw_background(screen, scene)
 
         # Enemy counter
         screen.blit(minimetroid, (width-50,5))
@@ -339,7 +276,7 @@ while 1:
 
         # Change scene
         if player.x>width-player.im_stop.get_width():
-            if scene<numscenes:
+            if scene<back.numscenes:
                 scene+=1
                 player.x=0
             else:
@@ -371,7 +308,7 @@ while 1:
             pygame.mixer.music.play(-1, 0.0)
 
         # Win when come back to the spaceship
-        if (player.x == width//2 -1) and (scene == 1) and (motherbrain.alive == False) and (len(list_enemies)==0):
+        if (player.x < width//2) and (scene == 1) and (motherbrain.alive == False) and (len(list_enemies)==0):
 
             victory = True
             pygame.mixer.music.load("music/Metroid (NES) Music - Ending Theme.mp3")
@@ -391,14 +328,14 @@ while 1:
         screen.blit(victorytext2,(width/2-victorytext2.get_width()/2,3*height/4))
 
         instant = pygame.time.get_ticks()/100
-        winanim.win_animation(instant)
+        winanim.win_animation(screen, instant)
         for event in pygame.event.get():
 
             if event.type==pygame.QUIT:
                 pygame.quit()
                 exit(0)
 
-        clock.tick(50)
+        clock.tick(10)
         pygame.display.update()
 
 
