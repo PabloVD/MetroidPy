@@ -8,22 +8,22 @@ Sprites obtained from [Super Metroid](https://www.spriters-resource.com/snes/sme
 
 ![opening scene](opening.png)
 
-## Play
+##To play
 
 There are two options to play the game:
 
--Click on the executable `metroid`
+- Click on the executable `metroid`
 
--Run `python metroid.py` in the command line
+- Run `python metroid.py` in the command line
 
 ## Controls
 
-&#8592; &#8594;: movement
+- &#8592; &#8594;: movement
 
-&#8593;: point up
+- &#8593;: point up
 
-&#8595;: Morphball
+- &#8595;: Morphball
 
-Space bar: jump
+- Space bar: jump
 
-X: shoot
+- X: shoot

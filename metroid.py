@@ -18,7 +18,10 @@ from source.missil import missil
 from source.background import background, platform
 from source.winning import win_anim
 
-# To create an executable, first install pyinstaller. Then, run in the command line: `pyinstaller metroid.py source/*.py --onefile --noconsole`
+# To create an executable, first install pyinstaller.
+# Then, run in the command line:
+# `pyinstaller metroid.py source/*.py --onefile --noconsole`
+# The executable is in the folder dist/ , move it to the main directory to run (or move the assets to dist/)
 
 #ignore warning message (not working)
 warnings.filterwarnings("ignore", message="known incorrect sRGB profile")
