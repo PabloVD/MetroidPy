@@ -8,7 +8,7 @@ Sprites obtained from [Super Metroid](https://www.spriters-resource.com/snes/sme
 
 ![opening scene](opening.png)
 
-##To play
+## To play
 
 There are two options to play the game:
 
