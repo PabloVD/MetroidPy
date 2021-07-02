@@ -8,8 +8,7 @@
 # Import libraries
 import pygame
 from pygame.locals import *
-import math
-import random
+import sys
 import time
 import warnings
 from source.player import samus
@@ -101,7 +100,7 @@ while menu==True:
 
         if event.type==pygame.QUIT:
             pygame.quit()
-            exit(0)
+            sys.exit()
 
         if event.type == pygame.KEYDOWN:
             if event.key==K_RETURN:
@@ -275,7 +274,7 @@ while 1:
 
             if event.type==pygame.QUIT:
                 pygame.quit()
-                exit(0)
+                sys.exit()
 
             if event.type == pygame.KEYDOWN:
                 if event.key==K_SPACE:
@@ -357,7 +356,7 @@ while 1:
 
             if event.type==pygame.QUIT:
                 pygame.quit()
-                exit(0)
+                sys.exit()
 
             elif event.type == pygame.KEYDOWN:
                 if event.key==K_RETURN:
@@ -385,7 +384,7 @@ while 1:
 
             if event.type==pygame.QUIT:
                 pygame.quit()
-                exit(0)
+                sys.exit()
 
         clock.tick(10)
         pygame.display.update()
@@ -395,7 +394,7 @@ while 1:
 
         if event.type == pygame.QUIT:
             pygame.quit()
-            exit(0)
+            sys.exit()
 
     pygame.display.update()
     #pygame.display.flip()

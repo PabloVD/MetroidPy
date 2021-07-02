@@ -114,8 +114,8 @@ class samus(pygame.sprite.Sprite):
 
         # Stop falling if player is above a platform or floor
         for plat in platforms:
-            #if (self.rect.colliderect(plat.rect)) and (self.rect.bottom>=plat.rect.top) and (self.vely > 0):
-            if (self.rect.colliderect(plat.rect)) and (self.rect.bottom>=plat.rect.top) and (self.vely > 0):
+            cond_position = (self.rect.bottom>=plat.rect.top) and ( (self.rect.midbottom[1]>=plat.rect.x) or (self.rect.midbottom[1]<=plat.rect.x+plat.image.get_height()) )
+            if (self.rect.colliderect(plat.rect)) and (self.rect.bottom>=plat.rect.top) and (self.vely > 0) and cond_position:
                 self.vely = 0
                 #if self.up==False:
                 self.bottom = plat.rect.top
