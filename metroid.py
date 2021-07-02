@@ -12,12 +12,13 @@ import math
 import random
 import time
 import warnings
-from source.player import player
+from source.player import samus
 from source.enemies import metroid, mother_brain
 from source.missil import missil
-from source.background import background
+from source.background import background, platform
 from source.winning import win_anim
 
+# To create an executable, first install pyinstaller. Then, run in the command line: `pyinstaller metroid.py source/*.py --onefile --noconsole`
 
 #ignore warning message (not working)
 warnings.filterwarnings("ignore", message="known incorrect sRGB profile")
@@ -60,16 +61,18 @@ fuente = pygame.font.Font("Metroid-Fusion.ttf",30)
 fuente2 = pygame.font.Font("Metroid-Fusion.ttf",20)
 press_start = fuente.render("PRESS START", True, (240,200,80))
 game_over = fuente.render("GAME OVER", True, (240,200,80))
+restart = fuente2.render("Press enter to restart", True, (240,200,80))
 victorytext1 = fuente2.render("THE GALAXY IS SAFE AGAIN", True, (240,200,80))
 victorytext2 = fuente2.render("SEE YOU NEXT MISSION", True, (240,200,80))
-#restart = fuente2.render("Press enter to restart", True, (240,200,80))
 
 
+floorsize = 50
 
 
 # Some flags
 menu = True
-menu = True
+#menu = False
+initgame = True
 gameover = False
 victory = False
 
@@ -106,71 +109,113 @@ while menu==True:
 
 
 #-----------------
-# Initialize classes
-#-----------------
-
-# Background
-back = background()
-
-# Initialize player
-player = player(width//2-13, height-85) # 13 is half the size of the Samus sprite
-
-# Initialize enemies
-list_metroids = [ metroid(width-50,height//2+80,True,2),
-                  metroid(width/2,height//2,False,2),
-                  metroid(width//4,height//2-85,True,3),
-                  metroid(width//2+50,height//2,False,3),
-                  metroid(width//2+100,3*height//4,True,3),
-                  metroid(width//5,height//2-115,True,4),
-                  metroid(3*width//4,3*height//4,False,4),
-                  metroid(width//2,height//2+30,True,4),
-                  metroid(3*width//4+50,height//2-100,True,4),
-                  metroid(width//2-30,height//2,True,5,"blue"),
-                  metroid(width//2,height//2-30,False,5,"blue"),
-                  metroid(width//2,height//2+30,True,5,"blue"),
-                ]
-
-# Final boss
-motherbrain = mother_brain(3*width//4, height//2+20, 1)
-list_enemies = []#list_metroids
-list_enemies.append(motherbrain)
-
-# Initialize shots
-list_shots = []
-
-# Start in first scene
-scene = 1
-
-
-#-----------------
-# Opening scene
-#-----------------
-
-pygame.mixer.music.load("music/intro_fanfare.mp3")
-pygame.mixer.music.play(0, 0.0)
-back.draw_background(screen, scene)
-screen.blit(player.image, (player.x, player.y))
-pygame.display.update()
-time.sleep(5.)
-
-
-pygame.mixer.music.load("music/brinstar.mp3")
-pygame.mixer.music.play(-1, 0.)
-
-#-----------------
 # Main loop
 #-----------------
 
 while 1:
+
+    if initgame:
+
+        #-----------------
+        # Initialize classes
+        #-----------------
+
+        # Background
+        back = background()
+
+        # Initialize player
+        player = samus(width//2-13, height-85) # 13 is half the size of the Samus sprite
+
+        # Initialize enemies
+        list_metroids = [ metroid(width-50,height//2+80,True,2),
+                          metroid(width/2,height//2,False,2),
+                          metroid(width//4,height//2-85,True,3),
+                          metroid(width//2+50,height//2,False,3),
+                          metroid(width//2+100,3*height//4,True,3),
+                          metroid(width//5,height//2-115,True,4),
+                          metroid(3*width//4,3*height//4,False,4),
+                          metroid(width//2,height//2+30,True,4),
+                          metroid(3*width//4+50,height//2-100,True,4),
+                          metroid(width//2-30,height//2,True,5,"blue"),
+                          metroid(width//2,height//2-30,False,5,"blue"),
+                          metroid(width//2,height//2+30,True,5,"blue"),
+                        ]
+
+        # Final boss
+        motherbrain = mother_brain(3*width//4, height//2+20, 5)
+        list_enemies = list_metroids
+        list_enemies.append(motherbrain)
+
+        # Initialize shots
+        list_shots = []
+
+        # Start in first scene
+        scene = 1
+
+        # Create platforms
+        platforms = []
+        # Floor
+        for sce in range(back.numscenes):
+            platforms.extend( [platform(x*floorsize, height-40, sce+1) for x in range(width//floorsize)] )
+        # Floating platforms
+        plats = [ platform(width/5, 3*height/5, 2, 0.5),
+                  platform(width/2, 3*height/5, 2, 0.5),
+                  platform(width//5, 3*height/5, 3, 0.5),
+                  platform(2*width//5, 3*height/5, 3, 0.5),
+                  platform(4*width//5, 3*height/5, 3, 0.5),
+                  platform(width//2, 2*height/5, 3, 0.5),
+                  platform(4*width//5, 3*height/5, 3, 1.5),
+                  platform(0, 3*height/5, 4, 1),
+                  platform(2*width//5, 2*height/5, 4, 0.5),
+                  platform(width//2, 3*height/5, 4, 1),
+                  platform(width//5, 3*height/5, 5, 1),
+                ]
+        platforms.extend(plats)
+
+        #-----------------
+        # Opening scene
+        #-----------------
+
+        #"""
+        pygame.mixer.music.load("music/intro_fanfare.mp3")
+        pygame.mixer.music.play(0, 0.0)
+        back.draw_background(screen, scene)
+        platforms_scene = [plat for plat in platforms if plat.scene == scene ]
+        for plat in platforms_scene:
+            plat.draw(screen, scene)
+        screen.blit(player.image, (player.x, player.y))
+        pygame.display.update()
+        time.sleep(5.)
+        #"""
+
+        pygame.mixer.music.load("music/brinstar.mp3")
+        pygame.mixer.music.play(-1, 0.)
+
+        initgame = False
+
     while (gameover==False) and (victory==False):
 
-        # Draw background
+        # Draw background and platforms
         back.draw_background(screen, scene)
+
+        platforms_scene = [plat for plat in platforms if plat.scene == scene ]
+
+        for plat in platforms_scene:
+            plat.draw(screen, scene)
 
         # Enemy counter
         screen.blit(minimetroid, (width-50,5))
         counter = fuente2.render(str(len(list_metroids)), True, (240,200,80))
         screen.blit(counter, (width-25,5))
+
+        if motherbrain.alive==False:
+            t_cntdwn = time.time()-motherbrain.timecountdown
+            cntdwn = fuente2.render(str(int(30.-t_cntdwn)), True, (240,200,80))
+            screen.blit(cntdwn, (width//2,5))
+            if t_cntdwn>=30:
+                gameover = True
+                pygame.mixer.music.load("music/title_theme.mp3")
+                pygame.mixer.music.play(-1, 0.0)
 
         # Draw healthbar
         screen.blit(healthbar, (5,5))
@@ -178,11 +223,12 @@ while 1:
             screen.blit(healthval,(x+8,8))
 
         # Update player times
-        if player.jump==True:
-            player.jumptime+=1
         player.timerun+=1
-        if player.timerun >= len(player.list_run)*player.t_run:
+        if player.timerun >= len(player.list_run)*player.t_anim:
             player.timerun = 0
+        player.timemorf+=1
+        if player.timemorf >= len(player.list_morf)*player.t_anim:
+            player.timemorf = 0
 
         # Show player image
         player.imagesamus(screen)
@@ -190,6 +236,7 @@ while 1:
         # Draw shots
         for bullet in list_shots:
             bullet.draw_shot(screen)
+            # Remove shots out of the screen
             if bullet.x<-bullet.image.get_width()/2 or bullet.x>width or bullet.y<0 or bullet.y>height:
                 list_shots.remove(bullet)
 
@@ -203,16 +250,10 @@ while 1:
                 # Move metroid
                 enemy.movement(player.x, player.y)
 
-                enemyrect = enemy.rect
-                enemyrect.top = enemy.y
-                enemyrect.left = enemy.x
-
                 # Enemies hit
                 for bullet in list_shots:
-                    missilrect = bullet.rect
-                    missilrect.left = bullet.x
-                    missilrect.top = bullet.y
-                    if enemyrect.colliderect(missilrect):
+
+                    if enemy.rect.colliderect(bullet.rect):
                         enemy.health-=1
                         sound_enemy.play()
                         list_shots.remove(bullet)
@@ -222,15 +263,8 @@ while 1:
                             enemy.death()
                             list_enemies.remove(enemy)
 
-                if player.morf==True:
-                    samusrect=pygame.Rect(player.im_morf1.get_rect())
-                    samusrect.top=player.y+30
-                else:
-                    samusrect=pygame.Rect(player.im_stop.get_rect())
-                    samusrect.top=player.y
-                samusrect.left=player.x
-                if enemyrect.colliderect(samusrect):
-                    player.health-=1
+                if enemy.rect.colliderect(player.rect):
+                    player.health -= 1
 
 
     	# Events
@@ -242,37 +276,38 @@ while 1:
 
             if event.type == pygame.KEYDOWN:
                 if event.key==K_SPACE:
-                    player.up = False
-                    if player.jump==False:
-                        player.jump=True
-                        player.jumptime=0
+                    player.jump(platforms_scene)
+
+                elif event.key==K_UP:
+                    if player.morf==True:
+                        player.morf = False
+                    else:
+                        player.up = True
+
                 if (event.key==K_LEFT) or (event.key==K_RIGHT):
                     if event.key==K_LEFT:   player.move_left=True
                     elif event.key==K_RIGHT:    player.move_right=True
-                    timerun = 0
+                    player.timerun = 0
                     player.up = False
-                if event.key==K_DOWN:
-                    player.morf=True
-                    player.up = False
-                elif event.key==K_UP:
-                    if player.morf==True:
-                        player.morf=False
-                    else:
-                        if player.jump==False:
-                            player.up = True
 
-                if event.key==K_x:
+                if event.key==K_DOWN:
+                    player.morf = True
+
+
+                if event.key==K_x and player.morf==False:
                     sound_shoot.play()
-                    list_shots.append( missil(player.x+player.im_stop.get_width()/2, player.y+15, player.to_right, player.up) )
+                    list_shots.append( missil(player.x + player.image.get_width()/2, player.y+15, player.to_right, player.up) )
 
             if event.type == pygame.KEYUP:
                 if event.key==pygame.K_LEFT:
-                    player.move_left=False
+                    player.move_left = False
                 elif event.key==pygame.K_RIGHT:
-                    player.move_right=False
+                    player.move_right = False
+                elif event.key==pygame.K_UP:
+                    player.up = False
 
         # Move player
-        player.move_player()
+        player.move_player(platforms_scene)
 
         # Change scene
         if player.x>width-player.im_stop.get_width():
@@ -290,36 +325,50 @@ while 1:
 
         if player.health<=0:
             gameover = True
-
-        pygame.display.update()
-        #pygame.display.flip()
-        time.sleep(0.01)
-
-        if gameover==True:
-
-            #-----------------
-            # Game over screen
-            #-----------------
-
-            #screen.blit(im_gameover, (0,0))
-            screen.blit(backmenu,(0,0))
-            screen.blit(game_over,(width/2-game_over.get_width()/2,height/2-game_over.get_height()/2))
             pygame.mixer.music.load("music/title_theme.mp3")
             pygame.mixer.music.play(-1, 0.0)
 
         # Win when come back to the spaceship
         if (player.x < width//2) and (scene == 1) and (motherbrain.alive == False) and (len(list_enemies)==0):
-
             victory = True
             pygame.mixer.music.load("music/Metroid (NES) Music - Ending Theme.mp3")
             pygame.mixer.music.play(-1, 0.0)
             winanim = win_anim()
 
+        pygame.display.update()
+        #pygame.display.flip()
+        time.sleep(0.01)
+
+    while gameover==True:
+
+        #-----------------
+        # Game over screen
+        #-----------------
+
+        #screen.blit(im_gameover, (0,0))
+        screen.blit(backmenu,(0,0))
+        screen.blit(game_over,(width/2-game_over.get_width()/2,height/2-game_over.get_height()/2))
+        screen.blit(restart,(width/2-restart.get_width()/2,3*height/4))
+
+        for event in pygame.event.get():
+
+            if event.type==pygame.QUIT:
+                pygame.quit()
+                exit(0)
+
+            elif event.type == pygame.KEYDOWN:
+                if event.key==K_RETURN:
+                    gameover = False
+                    initgame = True
+
+        clock.tick(10)
+        pygame.display.update()
+
 
     while (victory==True):
 
         #-----------------
-        # Win screen
+        # Victory screen
         #-----------------
 
         screen.fill(0)
@@ -340,12 +389,6 @@ while 1:
 
 
     for event in pygame.event.get():
-        """
-        if event.type == pygame.KEYDOWN:
-            if event.key==K_RETURN:
-                gameover=False
-                player.health = 194
-        """
 
         if event.type == pygame.QUIT:
             pygame.quit()

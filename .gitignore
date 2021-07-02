@@ -1,3 +1,7 @@
 oldversions/
 .DS_Store
 .gitignore~
+dist/
+build/
+metroid.spec
+__pycache__/

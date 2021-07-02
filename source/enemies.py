@@ -1,6 +1,7 @@
 
 import pygame
 import numpy as np
+import time
 
 # Defined twice!
 height = 200
@@ -10,22 +11,33 @@ class enemy(pygame.sprite.Sprite):
     def __init__(self, posx, posy, scene, ini_im, health):
         pygame.sprite.Sprite.__init__(self)
 
+        # Initial sprite
         self.image = pygame.image.load(ini_im)
-        self.rect = self.image.get_rect()
 
+        # Position
         self.x = posx
         self.y = posy
+
+        # Rectangle for collisions
+        self.rect = self.image.get_rect()
+        self.rect.top = self.y
+        self.rect.left = self.x
+
+        # Scene where the enemy appears
         self.scene = scene
 
+        # Health
         self.health = health
 
     # Show enemy
     def draw(self, screen):
         screen.blit(self.image,(self.x, self.y))
 
+    # Movement function, to be defined for each enemy
     def movement(self, playerposx, playerposy):
         pass
 
+    # Death function, to be defined for each enemy
     def death(self):
         pass
 
@@ -38,6 +50,7 @@ class metroid(enemy):
         self.vel_metroid = 0.8
         self.danger_dist = 200
 
+        # Make blue metroids stronger
         if type=="blue":
             self.health *= 2
             self.vel_metroid = 1
@@ -63,6 +76,9 @@ class metroid(enemy):
                 else:
                     self.upward = True
 
+        self.rect.top = self.y
+        self.rect.left = self.x
+
 # Mother brain class
 class mother_brain(enemy):
     def __init__(self, posx, posy, scene):
@@ -75,6 +91,7 @@ class mother_brain(enemy):
         mb_sup = pygame.image.load("sprites/misc/MotherBrain_support.png")
         self.mb_sup = pygame.transform.scale(mb_sup,(mb_sup.get_width()*2,mb_sup.get_height()*2))
         self.alive = True
+        self.timecountdown = 0
 
 
     # Show enemy
@@ -99,3 +116,4 @@ class mother_brain(enemy):
         pygame.mixer.music.play(-1, 0.0)
 
         self.alive = False
+        self.timecountdown = time.time()

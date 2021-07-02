@@ -6,10 +6,13 @@ class missil(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
 
         self.image = pygame.image.load("sprites/misc/misil.png")
-        self.rect = self.image.get_rect()
 
         self.x = posx
         self.y = posy
+
+        self.rect = self.image.get_rect()
+        self.rect.left = self.x
+        self.rect.top = self.y
 
         self.vel_shot = 5
 
@@ -32,3 +35,6 @@ class missil(pygame.sprite.Sprite):
             screen.blit(self.image, (self.x, self.y))
         else:
             screen.blit(pygame.transform.flip(self.image,True,False), (self.x-10, self.y))
+
+        self.rect.left = self.x
+        self.rect.top = self.y
